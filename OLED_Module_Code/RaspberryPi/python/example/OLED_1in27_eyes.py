@@ -1,11 +1,15 @@
 import logging
 import time
+import sys
+import os
+picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
+libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
+if os.path.exists(libdir):
+    sys.path.append(libdir)
 from waveshare_OLED import OLED_1in27_rgb
 from PIL import Image, ImageDraw
 import cv2
 import numpy as np
-import sys
-import os
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -27,8 +31,8 @@ def main():
     kernel = np.ones((20, 20), np.uint8)
 
     # Define eye parameters
-    eye_radius = 30
-    eye_distance = 40
+    eye_radius = 20
+    eye_distance = 30
 
     # Initialize previous eye positions
     prev_left_eye_x = width // 2 - eye_distance
@@ -59,7 +63,7 @@ def main():
 
         cnt = contours[max_index]
         x, y, w, h = cv2.boundingRect(cnt)
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 15)
 
         x2 = x + int(w / 2)
         y2 = y + int(h / 2)
@@ -72,7 +76,7 @@ def main():
         y2 = max(ellipse_height // 2, min(height - ellipse_height // 2, y2))
 
         # Interpolate eye positions for smooth transition
-        alpha = 0.2  # Smoothing factor
+        alpha = 0.06  # Smoothing factor
         left_eye_x = int((1 - alpha) * prev_left_eye_x + alpha * (x2 - eye_distance))
         right_eye_x = int((1 - alpha) * prev_right_eye_x + alpha * (x2 + eye_distance))
         eye_y = int((1 - alpha) * prev_eye_y + alpha * y2)
