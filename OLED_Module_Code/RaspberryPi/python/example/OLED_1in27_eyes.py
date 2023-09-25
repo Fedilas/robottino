@@ -77,6 +77,11 @@ def main():
         right_eye_x = x2 + eye_distance
         eye_y = y2
 
+        # Ensure eyes stay within display boundaries
+        left_eye_x = max(eye_radius, min(width - eye_radius, left_eye_x))
+        right_eye_x = max(eye_radius, min(width - eye_radius, right_eye_x))
+        eye_y = max(eye_radius, min(height - eye_radius, eye_y))
+
         # Clear the previous frame
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
