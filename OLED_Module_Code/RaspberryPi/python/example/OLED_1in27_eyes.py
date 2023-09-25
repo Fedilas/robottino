@@ -1,11 +1,5 @@
 import logging
 import time
-import sys
-import os
-picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
-libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
-if os.path.exists(libdir):
-    sys.path.append(libdir)
 from waveshare_OLED import OLED_1in27_rgb
 from PIL import Image, ImageDraw
 import cv2
@@ -35,6 +29,11 @@ def main():
     # Define eye parameters
     eye_radius = 30
     eye_distance = 40
+
+    # Initialize previous eye positions
+    prev_left_eye_x = width // 2 - eye_distance
+    prev_right_eye_x = width // 2 + eye_distance
+    prev_eye_y = height // 2
 
     while True:
         ret, frame = cap.read()
@@ -72,15 +71,20 @@ def main():
         x2 = max(ellipse_width // 2, min(width - ellipse_width // 2, x2))
         y2 = max(ellipse_height // 2, min(height - ellipse_height // 2, y2))
 
-        # Calculate eye positions
-        left_eye_x = x2 - eye_distance
-        right_eye_x = x2 + eye_distance
-        eye_y = y2
+        # Interpolate eye positions for smooth transition
+        alpha = 0.2  # Smoothing factor
+        left_eye_x = int((1 - alpha) * prev_left_eye_x + alpha * (x2 - eye_distance))
+        right_eye_x = int((1 - alpha) * prev_right_eye_x + alpha * (x2 + eye_distance))
+        eye_y = int((1 - alpha) * prev_eye_y + alpha * y2)
 
         # Ensure eyes stay within display boundaries
         left_eye_x = max(eye_radius, min(width - eye_radius, left_eye_x))
         right_eye_x = max(eye_radius, min(width - eye_radius, right_eye_x))
         eye_y = max(eye_radius, min(height - eye_radius, eye_y))
+
+        prev_left_eye_x = left_eye_x
+        prev_right_eye_x = right_eye_x
+        prev_eye_y = eye_y
 
         # Clear the previous frame
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
