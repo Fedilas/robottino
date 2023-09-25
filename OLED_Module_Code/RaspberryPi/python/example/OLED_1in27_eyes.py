@@ -1,5 +1,11 @@
 import logging
 import time
+import sys
+import os
+picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
+libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
+if os.path.exists(libdir):
+    sys.path.append(libdir)
 from waveshare_OLED import OLED_1in27_rgb
 from PIL import Image, ImageDraw
 import cv2
