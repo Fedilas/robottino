@@ -33,8 +33,8 @@ def main():
     kernel = np.ones((20, 20), np.uint8)
 
     # Define eye parameters
-    eye_radius = 10
-    eye_distance = 20
+    eye_radius = 30
+    eye_distance = 40
 
     while True:
         ret, frame = cap.read()
@@ -65,8 +65,8 @@ def main():
         x2 = x + int(w / 2)
         y2 = y + int(h / 2)
 
-        ellipse_width = 30
-        ellipse_height = 20
+        ellipse_width = 40
+        ellipse_height = 80
 
         # Ensure the ellipses stay within display boundaries
         x2 = max(ellipse_width // 2, min(width - ellipse_width // 2, x2))
@@ -84,12 +84,12 @@ def main():
         draw.ellipse(
             [(left_eye_x - eye_radius, eye_y - eye_radius),
              (left_eye_x + eye_radius, eye_y + eye_radius)],
-            outline=(255, 0, 0), fill=(255, 255, 255))
+            outline=(255, 255, 255), fill=(255, 255, 255))
 
         draw.ellipse(
             [(right_eye_x - eye_radius, eye_y - eye_radius),
              (right_eye_x + eye_radius, eye_y + eye_radius)],
-            outline=(255, 0, 0), fill=(255, 255, 255))
+            outline=(255, 255, 255), fill=(255, 255, 255))
 
         disp.ShowImage(disp.getbuffer(image))
 
