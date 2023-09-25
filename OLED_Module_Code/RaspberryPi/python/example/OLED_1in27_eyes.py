@@ -32,6 +32,10 @@ def main():
     back_sub = cv2.createBackgroundSubtractorMOG2(history=700, varThreshold=25, detectShadows=True)
     kernel = np.ones((20, 20), np.uint8)
 
+    # Define eye parameters
+    eye_radius = 10
+    eye_distance = 20
+
     while True:
         ret, frame = cap.read()
 
@@ -64,18 +68,28 @@ def main():
         ellipse_width = 30
         ellipse_height = 20
 
-        # Ensure the ellipse stays within display boundaries
+        # Ensure the ellipses stay within display boundaries
         x2 = max(ellipse_width // 2, min(width - ellipse_width // 2, x2))
         y2 = max(ellipse_height // 2, min(height - ellipse_height // 2, y2))
+
+        # Calculate eye positions
+        left_eye_x = x2 - eye_distance
+        right_eye_x = x2 + eye_distance
+        eye_y = y2
 
         # Clear the previous frame
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
-        # Draw the ellipse using updated coordinates
+        # Draw two ellipses to represent eyes
         draw.ellipse(
-            [(x2 - ellipse_width // 2, y2 - ellipse_height // 2),
-             (x2 + ellipse_width // 2, y2 + ellipse_height // 2)],
-            outline=(255, 0, 0), fill=(0, 0, 255))
+            [(left_eye_x - eye_radius, eye_y - eye_radius),
+             (left_eye_x + eye_radius, eye_y + eye_radius)],
+            outline=(255, 0, 0), fill=(255, 255, 255))
+
+        draw.ellipse(
+            [(right_eye_x - eye_radius, eye_y - eye_radius),
+             (right_eye_x + eye_radius, eye_y + eye_radius)],
+            outline=(255, 0, 0), fill=(255, 255, 255))
 
         disp.ShowImage(disp.getbuffer(image))
 
