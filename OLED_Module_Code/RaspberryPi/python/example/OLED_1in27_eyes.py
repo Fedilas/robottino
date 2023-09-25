@@ -62,8 +62,10 @@ def main():
         x2 = max(ellipse_width // 2, min(width - ellipse_width // 2, x2))
         y2 = max(ellipse_height // 2, min(height - ellipse_height // 2, y2))
 
+        # Clear the previous frame
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
+        # Draw the ellipse using updated coordinates
         draw.ellipse(
             [(x2 - ellipse_width // 2, y2 - ellipse_height // 2),
              (x2 + ellipse_width // 2, y2 + ellipse_height // 2)],
