@@ -2,20 +2,23 @@ import logging
 import time
 import sys
 import os
+import picamera
+import numpy as np
+
 picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
 libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
 if os.path.exists(libdir):
     sys.path.append(libdir)
+
 from waveshare_OLED import OLED_1in27_rgb
 from PIL import Image, ImageDraw
 import cv2
-import numpy as np
 
 logging.basicConfig(level=logging.DEBUG)
 
 def main():
     cap = cv2.VideoCapture(-1)
-    
+
     disp = OLED_1in27_rgb.OLED_1in27_rgb()
 
     logging.info("1.27inch rgb OLED")
@@ -38,6 +41,12 @@ def main():
     prev_left_eye_x = width // 2 - eye_distance
     prev_right_eye_x = width // 2 + eye_distance
     prev_eye_y = height // 2
+
+    # Initialize blinking variables
+    is_blinking = False
+    blink_start_time = 0
+    min_blink_duration = 1  # Minimum duration between blinks (in seconds)
+    max_blink_duration = 10  # Maximum duration between blinks (in seconds)
 
     while True:
         ret, frame = cap.read()
@@ -93,16 +102,39 @@ def main():
         # Clear the previous frame
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
-        # Draw two ellipses to represent eyes
-        draw.ellipse(
-            [(left_eye_x - eye_radius, eye_y - eye_radius),
-             (left_eye_x + eye_radius, eye_y + eye_radius)],
-            outline=(255, 255, 255), fill=(255, 255, 255))
+        # Check if it's time to blink
+        current_time = time.time()
+        if not is_blinking and current_time - blink_start_time > np.random.uniform(min_blink_duration, max_blink_duration):
+            is_blinking = True
+            blink_start_time = current_time
 
-        draw.ellipse(
-            [(right_eye_x - eye_radius, eye_y - eye_radius),
-             (right_eye_x + eye_radius, eye_y + eye_radius)],
-            outline=(255, 255, 255), fill=(255, 255, 255))
+        if is_blinking:
+            # Draw closed eyes
+            draw.ellipse(
+                [(left_eye_x - eye_radius, eye_y - eye_radius),
+                 (left_eye_x + eye_radius, eye_y + eye_radius)],
+                outline=(0, 0, 0), fill=(0, 0, 0))
+
+            draw.ellipse(
+                [(right_eye_x - eye_radius, eye_y - eye_radius),
+                 (right_eye_x + eye_radius, eye_y + eye_radius)],
+                outline=(0, 0, 0), fill=(0, 0, 0))
+
+            # Check if blinking duration is over
+            if current_time - blink_start_time > 0.2:
+                is_blinking = False
+
+        else:
+            # Draw two ellipses to represent open eyes
+            draw.ellipse(
+                [(left_eye_x - eye_radius, eye_y - eye_radius),
+                 (left_eye_x + eye_radius, eye_y + eye_radius)],
+                                outline=(255, 255, 255), fill=(255, 255, 255))
+
+            draw.ellipse(
+                [(right_eye_x - eye_radius, eye_y - eye_radius),
+                 (right_eye_x + eye_radius, eye_y + eye_radius)],
+                outline=(255, 255, 255), fill=(255, 255, 255))
 
         disp.ShowImage(disp.getbuffer(image))
 
@@ -119,3 +151,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
